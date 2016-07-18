@@ -1,0 +1,40 @@
+﻿@section scripts{
+    <script>
+        $(function () {
+
+            var
+                showOnlineLayout = function () {
+                    $('.offline').fadeOut(function () {
+                        $('.online').fadeIn();
+                    });
+                },
+
+                showOfflineLayout = function () {
+                    $('.online').fadeOut(function () {
+                        $('.offline').fadeIn();
+                    });
+                };
+
+            var offlineUtility = new offlineUtility(
+                                        showOnlineLayout,
+                                        showOfflineLayout);
+        });
+
+    </script>
+}
+
+<div class="container">
+    <div class="jumbotron">
+        <div><img src="~/img/coded-homes-logo-large.png" /></div>
+        <p class="lead">The leader in imaginary California homes.</p>
+
+        <div class="online deferred">
+            <a class="btn btn-lg" href="/homes">View Our Homes</a>
+            <a class="btn btn-lg" href="/homes/new">Add a New Home</a>
+        </div>
+
+        <div class="offline deferred">
+            <a class="btn btn-lg" href="/homes/offline">Add a New Home</a>
+        </div>
+    </div>
+</div>

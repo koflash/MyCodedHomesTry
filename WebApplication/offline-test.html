@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <div id="msg"></div>
+</body>
+<script src="http.//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+    var OfflineUtility = function (onlineCallback, offlineCallback, pollingUrl) {
+
+        //******
+        //*****
+        //*****
+        var DEBUG_MODE = true;
+        //******
+
+        if (!pollingUrl) {
+            pollingUrl = '/o.html';
+        }
+
+        var
+            currentEventName = 'unknown',
+            debugCheckBoxId = '___forceOffline',
+
+            fireEvent = function (name, data) {
+                var e = document.createEvent("Event");
+                e.initEvent(name, true, true);
+                e.data = data;
+                window.dispatchEvent(e);
+            },
+
+            fireEventIfStatusChanges = function (eventName) {
+                if (currentEventName != eventName) {
+                    currentEventName = eventName;
+                    fireEvent(eventName, {});
+                }
+            },
+
+            getUrl = function () {
+                //***
+                //****
+                if (DEBUG_MODE) {
+                    if ($('#' + debugCheckBoxId).is(':checked')) {
+                        return '14cfb6f6-415c-40d8-997f-35aeb2163dfd.html';
+                    }
+
+                }
+                //*******
+                return pollingUrl;
+            },
+
+            //***
+            detectOnlineStatus = function (url) {
+                $.get(url).done(function () {
+                    fireEventIfStatusChanges('onlineCustom');
+                }).fail(function () {
+                    fireEventIfStatusChanges('offlineCustom');
+                });
+            },
+
+            autoReloadCacheUpdate = function () {
+                window.applicationCache.swapCache();
+                location.reload();
+            };
+
+
+        //****
+        if (DEBUG_MODE) {
+            var
+                container = $('<div></div>'),
+                checkBox = $('<input type="checkbox" width="auto" />'),
+                label = $('<label>Simulate Offline</label>');
+
+            checkBox.attr('id', debugCheckBoxId);
+            checkBox.attr('name', debugCheckBoxId);
+
+            label.attr('for', debugCheckBoxId);
+
+            container.attr('style', 'position:fixed;left:4px;bottom:4px');
+            container.append(checkBox);
+            container.append(label);
+
+            $('body').append(container);
+
+          
+        }
+
+        //***
+
+        if (window.applicationCache) {
+            $(window.applicationCache).on('updateready',
+                autoReloadOnCacheUpdate);
+        }
+
+        if (onlineCallback) {
+            window.addEventListener('onlineCustom', onlineCallback);
+        }
+
+        if (offlineCallback) {
+            window.addEventListener('offlineCustom', offlineCallback);
+        }
+ 
+        if (onlineCallback || offlineCallback) {
+            detectOnlineStatus();
+            setInterval(function () {
+                var url = getUrl();
+                detectOnlineStatus(url);
+            }, 3000);
+        }
+    };
+
+    $(function () {
+        var
+            msg = $('#msg'),
+
+            doWhenOnline = function () {
+                msg.text('online');
+            },
+
+            doWhenOffline = function () {
+                msg.text('OFFLINE');
+            };
+
+        var offlineUtility = new OfflineUtility(doWhenOnline, doWhenOffline);
+    });
+</script>
+</html>
